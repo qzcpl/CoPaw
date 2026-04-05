@@ -133,13 +133,24 @@ class BaseChatRepository(ABC):
         Returns:
             Filtered list of chat specs
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        
         cf = await self.load()
+        logger.info(f"filter_chats: loaded {len(cf.chats)} chats from {self.path if hasattr(self, 'path') else 'unknown'}")
+        logger.info(f"filter_chats: user_id={user_id}, channel={channel}")
+        
         results = cf.chats
 
         if user_id is not None:
+            logger.info(f"filter_chats: filtering by user_id={user_id}")
             results = [c for c in results if c.user_id == user_id]
+            logger.info(f"filter_chats: after user_id filter: {len(results)} chats")
 
         if channel is not None:
+            logger.info(f"filter_chats: filtering by channel={channel}")
             results = [c for c in results if c.channel == channel]
+            logger.info(f"filter_chats: after channel filter: {len(results)} chats")
 
+        logger.info(f"filter_chats: returning {len(results)} chats")
         return results

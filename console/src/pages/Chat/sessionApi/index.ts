@@ -51,7 +51,7 @@ interface ContentItem {
 /** A backend message after role-normalisation (output of toOutputMessage). */
 interface OutputMessage extends Omit<Message, "role"> {
   role: string;
-  metadata: null;
+  metadata: null | Record<string, any> | undefined;
   sequence_number?: number;
 }
 
@@ -150,9 +150,9 @@ function normalizeOutputMessageContent(content: unknown): unknown {
 const toOutputMessage = (msg: Message): OutputMessage => ({
   ...msg,
   role:
-    msg.type === TYPE_PLUGIN_CALL_OUTPUT && msg.role === "system"
+    (msg.type as string) === TYPE_PLUGIN_CALL_OUTPUT && (msg.role as string) === "system"
       ? ROLE_TOOL
-      : msg.role,
+      : (msg.role as string) || "assistant",
   metadata: null,
 });
 
@@ -426,14 +426,14 @@ class SessionApi implements IAgentScopeRuntimeWebUISessionAPI {
         lastMsg.cards = buildUserCard({
           content: [{ type: "text", text: cachedText }],
           role: ROLE_USER,
-        } as Message).cards;
+        } as any).cards;
       }
     } else {
       messages.push(
         buildUserCard({
           content: [{ type: "text", text: cachedText }],
           role: ROLE_USER,
-        } as Message),
+        } as any),
       );
     }
   }

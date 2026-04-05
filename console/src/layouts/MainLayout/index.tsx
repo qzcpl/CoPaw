@@ -9,6 +9,14 @@ import ChannelsPage from "../../pages/Control/Channels";
 import SessionsPage from "../../pages/Control/Sessions";
 import CronJobsPage from "../../pages/Control/CronJobs";
 import HeartbeatPage from "../../pages/Control/Heartbeat";
+import { CallIdManagement } from "../../pages/Control/CallIdManagement";
+import { BotManagement } from "../../pages/Control/BotManagement";
+import { TenantManagement } from "../../pages/Control/TenantManagement";
+import { MonitorCenter } from "../../pages/Control/MonitorCenter";
+import IntegrationTest from "../../pages/Control/IntegrationTest";
+import RoutingManagement from "../../pages/Control/RoutingManagement";
+import QueueManagement from "../../pages/Control/QueueManagement";
+import { GrayReleaseManagement } from "../../pages/Control/GrayReleaseManagement";
 import AgentConfigPage from "../../pages/Agent/Config";
 import SkillsPage from "../../pages/Agent/Skills";
 import SkillPoolPage from "../../pages/Agent/SkillPool";
@@ -30,6 +38,14 @@ const pathToKey: Record<string, string> = {
   "/sessions": "sessions",
   "/cron-jobs": "cron-jobs",
   "/heartbeat": "heartbeat",
+  "/callid-management": "callid-management",
+  "/bot-management": "bot-management",
+  "/tenant-management": "tenant-management",
+  "/monitor": "monitor",
+  "/integration-test": "integration-test",
+  "/routing-management": "routing-management",
+  "/queue-management": "queue-management",
+  "/gray-release": "gray-release",
   "/skills": "skills",
   "/skill-pool": "skill-pool",
   "/tools": "tools",
@@ -79,6 +95,15 @@ export default function MainLayout() {
                 path="/voice-transcription"
                 element={<VoiceTranscriptionPage />}
               />
+              {/* 新增管理页面 */}
+              <Route path="/callid-management" element={<CallIdManagement />} />
+              <Route path="/bot-management" element={<BotManagement />} />
+              <Route path="/tenant-management" element={<TenantManagement />} />
+              <Route path="/monitor" element={<MonitorCenter />} />
+              <Route path="/integration-test" element={<IntegrationTest />} />
+              <Route path="/routing-management" element={<RoutingManagement />} />
+              <Route path="/queue-management" element={<QueueManagement />} />
+              <Route path="/gray-release" element={<GrayReleaseManagement />} />
             </Routes>
           </div>
         </Content>

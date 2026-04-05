@@ -1,8 +1,11 @@
-import type { ChatSpec } from "../../../../api/types";
+import type { ChatSpec, SessionListResponse } from "../../../../api/types";
 
 export interface Session extends ChatSpec {
   name?: string;
 }
+
+// 导出 SessionListResponse 类型
+export type { SessionListResponse };
 
 /**
  * Normalize ISO timestamp to ensure UTC timezone is always recognized.

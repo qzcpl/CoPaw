@@ -18,9 +18,9 @@ function SessionsPage() {
   const {
     sessions,
     loading,
-    updateSession,
+    pauseSession,
+    resumeSession,
     deleteSession,
-    batchDeleteSessions,
   } = useSessions();
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -103,10 +103,11 @@ function SessionsPage() {
       okType: "danger",
       cancelText: t("cronJobs.cancelText"),
       onOk: async () => {
-        const success = await batchDeleteSessions(selectedRowKeys as string[]);
-        if (success) {
-          setSelectedRowKeys([]);
+        // 逐个删除
+        for (const sessionId of selectedRowKeys as string[]) {
+          await deleteSession(sessionId);
         }
+        setSelectedRowKeys([]);
       },
     });
   };
@@ -117,21 +118,8 @@ function SessionsPage() {
   };
 
   const handleSubmit = async (values: Session) => {
-    if (editingSession) {
-      setSaving(true);
-      try {
-        const updated = {
-          ...editingSession,
-          name: values.name,
-        };
-        const success = await updateSession(editingSession.id, updated);
-        if (success) {
-          setDrawerOpen(false);
-        }
-      } finally {
-        setSaving(false);
-      }
-    }
+    message.info("编辑功能暂不支持，请使用暂停/恢复操作");
+    setDrawerOpen(false);
   };
 
   const columns = createColumns({

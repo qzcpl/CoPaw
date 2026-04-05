@@ -113,47 +113,61 @@ def _get_jwt_secret() -> str:
 
 
 def create_token(username: str) -> str:
-    """Create an HMAC-signed token: ``base64(payload).signature``."""
+    """Create a standard JWT format token: ``header.payload.signature``."""
     import base64
 
     secret = _get_jwt_secret()
+    header = json.dumps({"alg": "HS256", "typ": "JWT"})
+    header_b64 = base64.urlsafe_b64encode(header.encode()).decode().rstrip("=")
     payload = json.dumps(
         {
             "sub": username,
+            "tenant_id": "default",
+            "role": "tenant_admin",
             "exp": int(time.time()) + TOKEN_EXPIRY_SECONDS,
             "iat": int(time.time()),
         },
     )
-    payload_b64 = base64.urlsafe_b64encode(payload.encode()).decode()
+    payload_b64 = (
+        base64.urlsafe_b64encode(payload.encode()).decode().rstrip("=")
+    )
+    signing_input = f"{header_b64}.{payload_b64}"
     sig = hmac.new(
         secret.encode(),
-        payload_b64.encode(),
+        signing_input.encode(),
         hashlib.sha256,
     ).hexdigest()
-    return f"{payload_b64}.{sig}"
+    return f"{signing_input}.{sig}"
 
 
-def verify_token(token: str) -> Optional[str]:
-    """Verify *token*, return username if valid, ``None`` otherwise."""
+def verify_token(token: str) -> Optional[Dict[str, Any]]:
+    """Verify *token*, return full payload if valid, ``None`` otherwise.
+
+    Returns:
+        Full token payload dict with sub, tenant_id, role, etc. if valid.
+        None if token is invalid or expired.
+    """
     import base64
 
     try:
-        parts = token.split(".", 1)
-        if len(parts) != 2:
+        parts = token.split(".")
+        if len(parts) != 3:
             return None
-        payload_b64, sig = parts
+        header_b64, payload_b64, sig = parts
         secret = _get_jwt_secret()
+        signing_input = f"{header_b64}.{payload_b64}"
         expected_sig = hmac.new(
             secret.encode(),
-            payload_b64.encode(),
+            signing_input.encode(),
             hashlib.sha256,
         ).hexdigest()
         if not hmac.compare_digest(sig, expected_sig):
             return None
-        payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+        payload_json = base64.urlsafe_b64decode(payload_b64 + "==")
+        payload = json.loads(payload_json)
         if payload.get("exp", 0) < time.time():
             return None
-        return payload.get("sub")
+        return payload
     except (json.JSONDecodeError, KeyError, ValueError, TypeError) as exc:
         logger.debug("Token verification failed: %s", exc)
         return None
@@ -367,7 +381,19 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 media_type="application/json",
             )
 
-        request.state.user = user
+        request.state.user = (
+            user.get("sub") if isinstance(user, dict) else user
+        )
+        request.state.tenant_id = (
+            user.get("tenant_id", "default")
+            if isinstance(user, dict)
+            else "default"
+        )
+        request.state.user_role = (
+            user.get("role", "tenant_admin")
+            if isinstance(user, dict)
+            else "tenant_admin"
+        )
         return await call_next(request)
 
     @staticmethod

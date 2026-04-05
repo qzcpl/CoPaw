@@ -26,7 +26,7 @@ export default function LoginPage() {
           navigate("/chat", { replace: true });
           return;
         }
-        setHasUsers(res.has_users);
+        setHasUsers(res.has_users ?? false);
         if (!res.has_users) {
           setIsRegister(true);
         }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAppMessage } from "../../../hooks/useAppMessage";
 import api from "../../../api";
-import type { Session } from "./components/constants";
+import type { Session, SessionListResponse } from "./components/constants";
 import { useAgentStore } from "../../../stores/agentStore";
 
 export function useSessions() {
@@ -13,9 +13,9 @@ export function useSessions() {
   const fetchSessions = async () => {
     setLoading(true);
     try {
-      const data = await api.listSessions();
-      if (data) {
-        setSessions(data as Session[]);
+      const data: SessionListResponse = await api.listSessions();
+      if (data && data.sessions) {
+        setSessions(data.sessions as unknown as Session[]);
       }
     } catch (error) {
       console.error("❌ Failed to load sessions:", error);
@@ -40,15 +40,28 @@ export function useSessions() {
     };
   }, [selectedAgent]);
 
-  const updateSession = async (sessionId: string, values: Session) => {
+  const pauseSession = async (sessionId: string) => {
     try {
-      const result = await api.updateSession(sessionId, values);
-      setSessions(sessions.map((s) => (s.id === sessionId ? result : s)));
-      message.success("Saved successfully");
+      await api.pauseSession(sessionId);
+      setSessions(sessions.map((s) => (s.id === sessionId ? { ...s, status: "paused" as const } : s)));
+      message.success("Paused successfully");
       return true;
     } catch (error) {
-      console.error("❌ Failed to save session:", error);
-      message.error("Save failed");
+      console.error("❌ Failed to pause session:", error);
+      message.error("Pause failed");
+      return false;
+    }
+  };
+
+  const resumeSession = async (sessionId: string) => {
+    try {
+      await api.resumeSession(sessionId);
+      setSessions(sessions.map((s) => (s.id === sessionId ? { ...s, status: "active" as const } : s)));
+      message.success("Resumed successfully");
+      return true;
+    } catch (error) {
+      console.error("❌ Failed to resume session:", error);
+      message.error("Resume failed");
       return false;
     }
   };
@@ -66,24 +79,11 @@ export function useSessions() {
     }
   };
 
-  const batchDeleteSessions = async (sessionIds: string[]) => {
-    try {
-      await api.batchDeleteSessions(sessionIds);
-      setSessions(sessions.filter((s) => !sessionIds.includes(s.id)));
-      message.success(`Successfully deleted ${sessionIds.length} session(s)`);
-      return true;
-    } catch (error) {
-      console.error("❌ Failed to batch delete sessions:", error);
-      message.error("Failed to batch delete sessions");
-      return false;
-    }
-  };
-
   return {
     sessions,
     loading,
-    updateSession,
+    pauseSession,
+    resumeSession,
     deleteSession,
-    batchDeleteSessions,
   };
 }

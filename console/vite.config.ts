@@ -36,7 +36,17 @@ export default defineConfig(({ mode }) => {
       port: 5173,
     },
     optimizeDeps: {
-      include: ["diff"],
+      include: [
+        "diff",
+        "react-syntax-highlighter",
+        "react-syntax-highlighter/dist/esm/languages/prism/markdown",
+        "react-syntax-highlighter/dist/esm/languages/prism/javascript",
+        "react-syntax-highlighter/dist/esm/languages/prism/python",
+        "react-syntax-highlighter/dist/esm/languages/prism/typescript",
+        "react-syntax-highlighter/dist/esm/languages/prism/json",
+        "react-syntax-highlighter/dist/esm/languages/prism/bash",
+        "react-syntax-highlighter/dist/esm/languages/prism/yaml",
+      ],
     },
     // build: {
     //   // Output to CoPaw's console directory,

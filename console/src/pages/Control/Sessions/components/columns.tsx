@@ -70,12 +70,12 @@ export const createColumns = (
     },
     {
       title: "UpdatedAt",
-      dataIndex: "updated_at",
+      dataIndex: "last_message_at",
       key: "updated_at",
       width: 180,
       render: (timestamp: string | number | null) => formatTime(timestamp),
       sorter: (a: Session, b: Session) =>
-        toUTCTime(a.updated_at) - toUTCTime(b.updated_at),
+        toUTCTime(a.last_message_at) - toUTCTime(b.last_message_at),
       defaultSortOrder: "descend",
     },
     {

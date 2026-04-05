@@ -35,9 +35,12 @@ import {
   SparkMenuExpandLine,
   SparkMenuFoldLine,
   SparkOtherLine,
+  SparkRoboticsLine,
 } from "@agentscope-ai/icons";
 import { clearAuthToken } from "../api/config";
 import { authApi } from "../api/modules/auth";
+import { useAuthStore } from "../stores/authStore";
+import { useTenantStore } from "../stores/tenantStore";
 import styles from "./index.module.less";
 import { useTheme } from "../contexts/ThemeContext";
 import { KEY_TO_PATH, DEFAULT_OPEN_KEYS } from "./constants";
@@ -70,7 +73,7 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
   useEffect(() => {
     authApi
       .getStatus()
-      .then((res) => setAuthEnabled(res.enabled))
+      .then((res) => setAuthEnabled(res.enabled ?? false))
       .catch(() => {});
   }, []);
 
@@ -149,6 +152,30 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
       icon: <SparkUserGroupLine size={18} />,
       path: "/sessions",
       label: t("nav.sessions"),
+    },
+    {
+      key: "callids",
+      icon: <SparkVoiceChat01Line size={18} />,
+      path: "/callids",
+      label: t("nav.callIds", "callId 管理"),
+    },
+    {
+      key: "bots",
+      icon: <SparkRoboticsLine size={18} />,
+      path: "/bots",
+      label: t("nav.bots", "Bot 管理"),
+    },
+    {
+      key: "tenants",
+      icon: <SparkUserGroupLine size={18} />,
+      path: "/tenants",
+      label: t("nav.tenants", "租户管理"),
+    },
+    {
+      key: "monitor",
+      icon: <SparkDataLine size={18} />,
+      path: "/monitor",
+      label: t("nav.monitor", "监控中心"),
     },
     {
       key: "cron-jobs",
@@ -257,6 +284,41 @@ export default function Sidebar({ selectedKey }: SidebarProps) {
           key: "sessions",
           label: collapsed ? null : t("nav.sessions"),
           icon: <SparkUserGroupLine size={16} />,
+        },
+        {
+          key: "callid-management",
+          label: collapsed ? null : t("nav.callIds", "callId 管理"),
+          icon: <SparkVoiceChat01Line size={16} />,
+        },
+        {
+          key: "bot-management",
+          label: collapsed ? null : t("nav.bots", "Bot 管理"),
+          icon: <SparkRoboticsLine size={16} />,
+        },
+        {
+          key: "tenant-management",
+          label: collapsed ? null : t("nav.tenants", "租户管理"),
+          icon: <SparkUserGroupLine size={16} />,
+        },
+        {
+          key: "monitor",
+          label: collapsed ? null : t("nav.monitor", "监控中心"),
+          icon: <SparkDataLine size={16} />,
+        },
+        {
+          key: "routing-management",
+          label: collapsed ? null : t("nav.routing", "路由配置"),
+          icon: <SparkModifyLine size={16} />,
+        },
+        {
+          key: "queue-management",
+          label: collapsed ? null : t("nav.queue", "队列管理"),
+          icon: <SparkOtherLine size={16} />,
+        },
+        {
+          key: "gray-release",
+          label: collapsed ? null : t("nav.grayRelease", "灰度发布"),
+          icon: <SparkMagicWandLine size={16} />,
         },
         {
           key: "cron-jobs",

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import api from "../../../api";
 import { useAgentStore } from "../../../stores/agentStore";
+import type { ChannelConfig } from "../../../api/types";
 
 export function useChannels() {
   const { selectedAgent } = useAgentStore();
@@ -17,8 +18,27 @@ export function useChannels() {
         api.listChannels(),
         api.listChannelTypes(),
       ]);
-      if (data)
-        setChannels(data as unknown as Record<string, Record<string, unknown>>);
+      
+      // 适配新 API 格式：数组 → 对象
+      let channelsMap: Record<string, Record<string, unknown>> = {};
+      if (Array.isArray(data)) {
+        // 新格式：[{ channel_id, config, status, ... }, ...]
+        channelsMap = (data as ChannelConfig[]).reduce((acc, channel) => {
+          acc[channel.channel_id] = {
+            ...channel.config,
+            status: channel.status,
+            created_at: channel.created_at,
+            updated_at: channel.updated_at,
+            tenant_id: channel.tenant_id,
+          };
+          return acc;
+        }, {} as Record<string, Record<string, unknown>>);
+      } else if (data && typeof data === 'object') {
+        // 旧格式：{ console: {...}, dingtalk: {...} }
+        channelsMap = data as Record<string, Record<string, unknown>>;
+      }
+      
+      setChannels(channelsMap);
       if (types) setChannelTypes(types);
     } catch (error) {
       console.error("❌ Failed to load channels:", error);

@@ -111,7 +111,10 @@ async def verify(request: Request):
             detail="Invalid or expired token",
         )
 
-    return {"valid": True, "username": username}
+    username_str = (
+        username.get("sub") if isinstance(username, dict) else username
+    )
+    return {"valid": True, "username": username_str}
 
 
 class UpdateProfileRequest(BaseModel):
@@ -138,7 +141,8 @@ async def update_profile(req: UpdateProfileRequest, request: Request):
     # Verify caller is authenticated
     auth_header = request.headers.get("Authorization", "")
     caller_token = auth_header[7:] if auth_header.startswith("Bearer ") else ""
-    if not caller_token or verify_token(caller_token) is None:
+    caller_payload = verify_token(caller_token)
+    if not caller_token or caller_payload is None:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     if not req.new_username and not req.new_password:

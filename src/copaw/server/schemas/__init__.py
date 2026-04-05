@@ -1,0 +1,3 @@
+"""
+CoPaw Server Schemas
+"""

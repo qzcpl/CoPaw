@@ -1,13 +1,17 @@
-# -*- coding: utf-8 -*-
-# ChannelManager is provided by __getattr__ (lazy-loaded).
-# pylint: disable=undefined-all-variable
-__all__ = ["ChannelManager"]
+"""
+CoPaw 频道模块 - 会话穿透扩展
 
+提供会话上下文管理、用户画像加载、群聊上下文等功能
+"""
 
-def __getattr__(name: str):
-    """Lazy-load ChannelManager to avoid pulling feishu/lark_oapi on CLI."""
-    if name == "ChannelManager":
-        from .manager import ChannelManager
+from .context_manager import SessionContextManager
+from .user_profile_loader import UserProfileLoader
+from .group_context_loader import GroupContextLoader
+from .conversation_summarizer import ConversationSummarizer
 
-        return ChannelManager
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+__all__ = [
+    "SessionContextManager",
+    "UserProfileLoader",
+    "GroupContextLoader",
+    "ConversationSummarizer",
+]

@@ -4,11 +4,20 @@ from fastapi import APIRouter
 
 from .agent import router as agent_router
 from .agents import router as agents_router
+from .bots import router as bots_router
+from .callid import router as callid_router
+from .channels import router as channels_router
+from .chat import router as chat_router
 from .config import router as config_router
+from .gray_release import router as gray_release_router
 from .local_models import router as local_models_router
+from .monitor import router as monitor_router
 from .providers import router as providers_router
+from .queue import router as queue_router
+from .routing import router as routing_router
 from .skills import router as skills_router
 from .skills_stream import router as skills_stream_router
+from .tenant import router as tenant_router
 from .workspace import router as workspace_router
 from .envs import router as envs_router
 from .mcp import router as mcp_router
@@ -26,16 +35,25 @@ router = APIRouter()
 
 router.include_router(agents_router)
 router.include_router(agent_router)
+router.include_router(bots_router)
+router.include_router(callid_router)
+router.include_router(channels_router)
+router.include_router(chat_router)
 router.include_router(config_router)
 router.include_router(console_router)
 router.include_router(cron_router)
+router.include_router(gray_release_router)
 router.include_router(local_models_router)
 router.include_router(mcp_router)
 router.include_router(messages_router)
+router.include_router(monitor_router)
 router.include_router(providers_router)
+router.include_router(queue_router)
+router.include_router(routing_router)
 router.include_router(runner_router)
 router.include_router(skills_router)
 router.include_router(skills_stream_router)
+router.include_router(tenant_router)
 router.include_router(tools_router)
 router.include_router(workspace_router)
 router.include_router(envs_router)
